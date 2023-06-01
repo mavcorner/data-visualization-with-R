@@ -1,2 +1,2 @@
 # data-visualization-with-R
-This includes using R to visualize different datasets like the European flights dataset to find out trends. 
+This includes using R to visualize the stock dataset and find out trends. 
