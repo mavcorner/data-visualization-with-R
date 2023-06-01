@@ -1,0 +1,218 @@
+---
+title: "Stocks Prices"
+output: html_document
+date: "2023-05-26"
+---
+
+# Data Used
+The data used is the Big Tech Stock Price data. and it is from Yahoo Finance through Kaggle. It includes the daily stock prices and volume of 14 different tech companies.
+To find out ore on the dataset, check here: https://www.kaggle.com/datasets/evangower/big-techstock-prices.
+
+This data was also one of the datasets used in my class Data visualization coursework.
+
+
+# Installing libraries
+
+```{r}
+library(tidyverse)
+```
+
+# Time range
+
+Before loading the data from yahoo finance, time range needed to be defined first.
+```{r}
+start = as.Date("04/01/2010") 
+end = as.Date("29/12/2022")
+```
+
+
+```{r}
+stock_prices <- read.csv("big_tech_stock_prices.csv")
+```
+
+
+```{r}
+# Taking a peek into the dataset.
+glimpse(stock_prices)
+```
+
+The next step is to create a data frame that captures all rows with just the adjusted price column of each company. The adjusted price is used to account for dividend payments.
+To do this, I will drop other columns like open, high, close, and low.
+
+Find missing value
+```{r}
+sum(is.na(stock_prices))
+```
+The dataset has no missing value.
+
+I want to remove sme columns such as open, close, low, high and volume since I want to do a brief analysis on only the stock price.
+I am assigning the name, stocks to the new dataset that I am creating.
+```{r}
+stocks <- stock_prices %>%
+select(-open, -close, -low, -high, -volume)
+```
+
+```{r}
+glimpse(stocks)
+```
+
+
+I am creating a new dataset from the existing stocks dataset and extracting information from AAPL, AMZN, CSCO and ADBE from it.
+```{r}
+newData <- filter(stocks, stock_symbol %in% c("AAPL", "AMZN", "CSCO", "ADBE"))
+```
+
+```{r}
+glimpse(newData)
+```
+
+
+# Create a line plot using stocks dataset.
+The ggplot() function initializes the plot, and we specify the stocks dataset as the data source. The aes() function is used to map the Date column to the x-axis and the Price column to the y-axis. We also group the data by the Ticker column and assign different colors to each ticker using the color parameter.
+
+The geom_line() function adds the line plot to the plot object. The labs() function is used to set the title and axis labels, and theme_minimal() sets a minimalistic theme for the plot.
+
+```{r}
+ggplot(stocks, aes(x = date, y = adj_close, group = stock_symbol, color = stock_symbol)) +
+  geom_line() +
+  labs(title = "Stock Price", x = "Date", y = "Price") +
+  theme_minimal()
+```
+
+
+# Create a line plot using newData dataset.
+
+```{r}
+ggplot(newData, aes(x = date, y = adj_close, group = stock_symbol, color = stock_symbol)) +
+  geom_line() +
+  labs(title = "Stock Price", x = "Date", y = "Price") +
+  theme_minimal()
+```
+
+
+Extract Year from date
+
+```{r}
+stocks$date <- as.Date(stocks$date)
+```
+
+# extract the year and convert to numeric format
+```{r}
+stocks$year <- as.numeric(format(stocks$date, "%Y"))
+stocks
+```
+
+
+
+```{r}
+glimpse(stocks)
+```
+
+
+
+```{r}
+ggplot(stocks, aes(x = date, y = adj_close, group = stock_symbol, color = stock_symbol)) +
+  geom_line() +
+  labs(title = "Stock Price", x = "Date", y = "Price") +
+  theme_minimal()
+```
+
+
+Extract Year from date in newData
+
+```{r}
+newData$date <- as.Date(newData$date)
+```
+
+# extract the year and convert to numeric format
+```{r}
+newData$year <- as.numeric(format(newData$date, "%Y"))
+newData
+```
+
+
+```{r}
+ggplot(newData, aes(x = year, y = adj_close, group = stock_symbol, color = stock_symbol)) +
+  geom_line() +
+  labs(title = "Stock Price", x = "Date", y = "Price") +
+  theme_minimal()
+```
+
+Changing year to numeric so that it will not have decimals.
+```{r}
+newData$year <- as.character(format(newData$date, "%Y"))
+newData
+```
+
+```{r}
+ggplot(newData, aes(x = year, y = adj_close, group = stock_symbol, color = stock_symbol)) +
+  geom_line() +
+  labs(title = "Stock Price", x = "Date", y = "Price") +
+  theme_minimal()
+```
+
+
+I want to flip the date to look clearer, hence I use theme(axis.text.x = element_text(angle=65, vjust=0.6))
+
+```{r}
+ggplot(newData, aes(x = year, y = adj_close, group = stock_symbol, color = stock_symbol)) +
+  geom_line() +
+  labs(title = "Stock Price", x = "Date", y = "Price") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle=65, vjust=0.6))
+```
+
+Using bar chart to plot the closing price of stocks against year.
+```{r}
+# Create the bar chart
+ggplot(stocks, aes(x = year, y = adj_close, fill = stock_symbol)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  labs(title = "Stock Price", x = "Date", y = "Price") +
+  theme_minimal()
+```
+
+
+```{r}
+ggplot(newData, aes(x = year, y = adj_close, fill = stock_symbol)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  labs(title = "Stock Price", x = "Date", y = "Price") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle=65, vjust=0.6))
+```
+
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+Reference 
+https://medium.com/analytics-vidhya/plot-stock-prices-with-r-6bdbaebc8ec1
+
+https://datascienceplus.com/how-to-get-stock-prices-and-plot-them/
+
+https://www.paradigmses.com/articles/Interactive-Data-Visualization-Using-R-for-Stock-Analysis.html
+
+https://towardsdatascience.com/monitoring-stock-performance-made-easy-with-r-and-shiny-b6ab5fb02085
+
+https://rpubs.com/markloessi/495609
+
+https://jtr13.github.io/cc21fall2/predictive-analytics-using-data-visualization-in-r.html
+
+https://www.r-bloggers.com/2017/04/an-introduction-to-stock-market-data-analysis-with-r-part-2/
+
+https://ntguardian.wordpress.com/2017/03/27/introduction-stock-market-data-r-1/
+
+https://alphaarchitect.com/2020/01/visualization-sector-trends-with-r-code/
+
+https://www.geeksforgeeks.org/ge-stock-price-analysis-using-r-language/
+
+
+Doing Ml with R
+https://www.datacamp.com/tutorial/machine-learning-in-r
+
+https://machinelearningmastery.com/machine-learning-in-r-step-by-step/
+
+tweets dataset for python deeplearning
+https://www.kaggle.com/datasets/kazanova/sentiment140
